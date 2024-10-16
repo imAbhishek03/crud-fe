@@ -4,6 +4,7 @@ import { BASE_URL, DEPT_URL } from "../config";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
+
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({
     empid: "",
@@ -155,8 +156,8 @@ const AddEmployee = () => {
                       <Form.Label>Department</Form.Label>
                     </Col>
                     <Col xs={8}>
-                      <Form.Control
-                        as="select"
+                      <Form.Select
+                        // as="select"
                         value={employee.department}
                         onChange={handleChange}
                         className="rounded-pill p-3"
@@ -168,7 +169,7 @@ const AddEmployee = () => {
                             {dept.department}
                           </option>
                         ))}
-                      </Form.Control>
+                      </Form.Select>
                     </Col>
                   </Row>
                 </Form.Group>
