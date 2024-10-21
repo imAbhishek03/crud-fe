@@ -43,7 +43,8 @@ const Home = () => {
 
   // load all employee list on page loading
 
-  const loadEmployees = async () => {
+  const loadEmployees = async (e) => {
+    e.preventDefault();
     const result = await axios.get(`${BASE_URL}employees`);
     console.log(result);
     console.log(result.data);

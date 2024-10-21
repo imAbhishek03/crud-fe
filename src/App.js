@@ -5,18 +5,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Home from "./pages/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AddEmployee from "./employees/AddEmployee";
+import LoginSignup from './loginSignup/LoginSignup'
 
 function App() {
   return (
     <div className="App">
-      <Router>
+      <LoginSignup />
+      {/* <Router>
         <Navbar />
-
         <Routes>
           <Route exact path="/" element={<Home />} />
           <Route exact path="/addemployee" element={<AddEmployee />} />
         </Routes>
-      </Router>
+      </Router> */}
     </div>
   );
 }
