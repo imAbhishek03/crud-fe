@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { BASE_URL, DEPT_URL } from "../config";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
-
+import api from "../services/axiosService";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({
@@ -24,7 +25,9 @@ const AddEmployee = () => {
   // Function to fetch departments from your backend (example)
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get(`${DEPT_URL}getAll`); // replace with your API endpoint
+      const response = await api.get(`/api/department/getAll`, {
+        requireAuth: true,
+      }); // replace with your API endpoint
       // const data = await response.json();
       console.log(response.data);
 
@@ -44,11 +47,14 @@ const AddEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("request ::: ", employee);
+    
     try {
-      const response = await axios.post(`${BASE_URL}add`, employee);
+      const response = await api.post(`/api/emp/add`, employee, {
+        requireAuth: true,
+      });
       console.log("response: ", response.data);
-      alert(`Employee record saved successfully.`);
+      toast.success("Employee Record Saved Successfully !!");
       // Clear the form after submission
       setEmployee({
         empid: "",
@@ -58,7 +64,7 @@ const AddEmployee = () => {
         department: "",
       });
     } catch (error) {
-      alert(`Something went wrong!!`);
+      toast.error(error);
       console.error("error creating employee", error);
     }
 
@@ -67,6 +73,7 @@ const AddEmployee = () => {
 
   return (
     <section>
+      <ToastContainer />
       <Container className="py-5">
         <Row className="justify-content-center">
           <Col md={6} lg={5}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL, DEPT_URL } from "../config";
-
+import "../style/Employee.css";
 import {
   Button,
   Col,
@@ -16,8 +16,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faUserXmark } from "@fortawesome/free-solid-svg-icons";
+import api from "../services/axiosService";
+import { getToken } from "../auth";
+import { toast, ToastContainer } from "react-toastify";
 
-const Home = () => {
+const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [editSelectedEmployee, setEditSelectedEmployee] = useState(null);
@@ -43,12 +46,17 @@ const Home = () => {
 
   // load all employee list on page loading
 
-  const loadEmployees = async (e) => {
-    e.preventDefault();
-    const result = await axios.get(`${BASE_URL}employees`);
-    console.log(result);
-    console.log(result.data);
-    setEmployees(result.data);
+  const loadEmployees = async () => {
+    try {
+      const token = getToken();
+
+      const result = await api.get(`/api/emp/employees`, { requireAuth: true });
+      console.log(result);
+      console.log(result.data);
+      setEmployees(result.data);
+    } catch (error) {
+      console.error("error ::: ", error);
+    }
   };
 
   //calling view API for selected employee
@@ -56,7 +64,9 @@ const Home = () => {
     try {
       console.log("id ---- ", id);
 
-      const response = await axios.get(`${BASE_URL}get/${id}`);
+      const response = await api.get(`/api/emp/get/${id}`, {
+        requireAuth: true,
+      });
       console.log(response.data);
       setSelectedEmployee(response.data);
       handleViewShow();
@@ -68,7 +78,9 @@ const Home = () => {
   // Function to fetch departments from backend
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get(`${DEPT_URL}getAll`); // replace with your API endpoint
+      const response = await api.get(`/api/department/getAll`, {
+        requireAuth: true,
+      }); // replace with your API endpoint
       // const data = await response.json();
       console.log(response.data);
 
@@ -84,7 +96,9 @@ const Home = () => {
       console.log("id ----- ", id);
       setEditId(id);
 
-      const response = await axios.get(`${BASE_URL}get/${id}`);
+      const response = await api.get(`/api/emp/get/${id}`, {
+        requireAuth: true,
+      });
       if (response.data != null) {
         console.log(response.data);
         fetchDepartments();
@@ -100,6 +114,7 @@ const Home = () => {
 
   // storing field data to editSelectedEmployee from input fields
   const handleEditFieldChange = (e) => {
+    e.preventDefault();
     const { name, value } = e.target; // Get input name and value
     setEditSelectedEmployee((prev) => ({
       ...prev,
@@ -110,15 +125,19 @@ const Home = () => {
   // calling edit API for selected employee
   const handleEditChange = async (employee) => {
     try {
-      const response = await axios.put(`${BASE_URL}update/${editId}`, employee);
+      const response = await api.put(`/api/emp/update/${editId}`, employee, {
+        requireAuth: true,
+      });
       console.log(response);
       if (response.status == "200") {
         setEditShow(false);
-        alert("Employee Details Updated Successfully.");
+        toast.success(response.data);
+        // alert(response.data);
         loadEmployees();
       }
     } catch (error) {
-      console.error("Something went wrong", error);
+      toast.error(error);
+      // console.error("Something went wrong", error);
     }
   };
 
@@ -130,11 +149,15 @@ const Home = () => {
   //calling delete API for selected employee
   const handleDeleteConfirm = async () => {
     try {
-      const response = await axios.delete(`${BASE_URL}delete/${deleteId}`);
+      const response = await api.delete(`/api/emp/delete/${deleteId}`, {
+        requireAuth: true,
+      });
       console.log("response --- ", response.data);
+      toast.success(response.data);
       handleClose();
       loadEmployees();
     } catch (error) {
+      toast.error(error);
       console.error("Something went wrong", error);
     }
   };
@@ -144,11 +167,13 @@ const Home = () => {
   }, []);
 
   return (
-    <section>
-      <div className="container">
-        <div className="py-4">
-          <table className="table border shadow">
-            <thead style={{ borderBottom: "2px solid black" }}>
+    <section className="main-container">
+      <ToastContainer />
+      <div className="inside-container">
+        <div className="header">Employee Details</div>
+        <div className="table-container">
+          <table className="table table-striped border shadow transparent-table">
+            <thead className="thead-dark">
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Emp Id</th>
@@ -162,15 +187,12 @@ const Home = () => {
             <tbody>
               {employees.map((employee, index) => (
                 <tr key={employee.id}>
-                  <th scope="row" key={index}>
-                    {index + 1}
-                  </th>
+                  <th scope="row">{index + 1}</th>
                   <td>{employee.empid}</td>
                   <td>{employee.name}</td>
                   <td>{employee.email}</td>
                   <td>{employee.phone}</td>
                   <td>{employee.department}</td>
-
                   <td>
                     <button
                       className="btn btn-primary mx-2"
@@ -186,9 +208,7 @@ const Home = () => {
                     </button>
                     <button
                       className="btn btn-danger mx-2"
-                      onClick={() => {
-                        handleDelete(employee.id);
-                      }}
+                      onClick={() => handleDelete(employee.id)}
                     >
                       <FontAwesomeIcon icon={faUserXmark} />
                     </button>
@@ -333,12 +353,12 @@ const Home = () => {
                     value={editSelectedEmployee.department}
                     onChange={handleEditFieldChange}
                   >
-                   <option value="">Select Department</option>
-                        {departments.map((dept) => (
-                          <option key={dept.id} value={dept.department}>
-                            {dept.department}
-                          </option>
-                        ))} 
+                    <option value="">Select Department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.department}>
+                        {dept.department}
+                      </option>
+                    ))}
                   </Form.Control>
                 </Col>
               </Form.Group>
@@ -382,4 +402,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Employees;

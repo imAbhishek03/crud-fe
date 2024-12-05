@@ -1,9 +1,15 @@
-import { myAxios } from "./config"
+import api from "./axiosService";
 
-export const registerUser = (request) =>{
-    return myAxios.post(`/auth/register-user`,request).then((response) => {return response})
-}
+export const registerUser = async (request) => {
+  const response = await api.post(`/auth/register-user`, request, {
+    requireAuth: false,
+  });
+  return response;
+};
 
-export const loginUser = (request) =>{
-    return myAxios.post(`/auth/login`, request).then((response)=>{return response})
-}
+export const loginUser = async (request) => {
+  const response = await api.post(`/auth/login`, request, {
+    requireAuth: false,
+  });
+  return response;
+};

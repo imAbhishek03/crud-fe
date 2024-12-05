@@ -1,29 +1,36 @@
-import { json } from "react-router-dom";
-
-// check user loggedin or not
+// Check if the user is logged in
 export const isLoggedIn = () => {
-  let data = localStorage.getItem("data");
-
-  if (data != null) {
-    return true;
-  } else {
-    return false;
-  }
+  const data = localStorage.getItem("data");
+  return data !== null;
 };
 
-//for login
+// Perform login and store user data
 export const doLogin = (data, next) => {
   localStorage.setItem("data", JSON.stringify(data));
   next();
 };
 
-// for logout
+// Perform logout and remove user data
 export const doLogout = () => {
-  localStorage.removeItem();
+  localStorage.removeItem("data");
 };
 
-// get current user
-export const currentUser = () => {
-  if (isLoggedIn) return JSON.parse(localStorage.getItem("data").username);
-  else return false;
+// Get the current logged-in user
+export const getCurrentUser = () => {
+  if (isLoggedIn()) {
+    const userData = JSON.parse(localStorage.getItem("data"));
+    return userData ? userData.username : null;
+  } else {
+    return null;
+  }
+};
+
+// Get the current logged-in user
+export const getToken = () => {
+  if (isLoggedIn()) {
+    const userData = JSON.parse(localStorage.getItem("data"));
+    return userData ? userData.token : null;
+  } else {
+    return null;
+  }
 };

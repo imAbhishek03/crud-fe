@@ -6,10 +6,11 @@ import password_icon from "../assets/password-icon.png";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser, registerUser } from "../services/user-service";
-import { currentUser, doLogin } from "../auth";
+import { doLogin, getToken, isLoggedIn } from "../auth";
+import { useNavigate } from "react-router-dom";
 
 const LoginSignup = () => {
-  const [action, setAction] = useState("Register");
+  const [action, setAction] = useState("Login");
 
   const [inputs, setInputs] = useState({
     username: "",
@@ -21,6 +22,15 @@ const LoginSignup = () => {
     error: {},
     isError: false,
   });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("isloggein :: ", isLoggedIn());
+    if (isLoggedIn()) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   // handle change
 
@@ -62,7 +72,7 @@ const LoginSignup = () => {
         })
         .catch((error) => {
           console.log(error);
-          toast("Something went wrong !!");
+          toast.error("Something went wrong !!");
         });
     }
   };
@@ -94,6 +104,11 @@ const LoginSignup = () => {
             doLogin(response.data, () => {
               console.log("login details is saved to localstorage.");
             });
+            if (isLoggedIn()) {
+              navigate("/dashboard");
+              console.log("Token ::: ", getToken());
+              
+            }
           }
         })
         .catch((error) => {
@@ -104,92 +119,94 @@ const LoginSignup = () => {
     }
   };
   return (
-    <div className="container">
-      <ToastContainer />
-      <div className="toggle-container">
-        <div
-          className={action === "Register" ? "toggle gray" : "toggle"}
-          onClick={() => {
-            setAction("Login");
-            setInputs({
-              username: "",
-              email: "",
-              password: "",
-            });
-          }}
-        >
-          Login
-        </div>
-        <div
-          className={action === "Login" ? "toggle gray" : "toggle"}
-          onClick={() => {
-            setAction("Register");
-            setInputs({
-              username: "",
-              email: "",
-              password: "",
-            });
-          }}
-        >
-          Register
-        </div>
-      </div>
-
-      <div className="inputs">
-        <div className="input">
-          <img src={user_icon} alt="" />
-          <input
-            name="username"
-            type="text"
-            placeholder="Username"
-            onChange={(e) => handleChange(e, "username")}
-            value={inputs.username}
-          />
+    <section>
+      <div className="login-container">
+        <ToastContainer />
+        <div className="toggle-container">
+          <div
+            className={action === "Register" ? "toggle gray" : "toggle"}
+            onClick={() => {
+              setAction("Login");
+              setInputs({
+                username: "",
+                email: "",
+                password: "",
+              });
+            }}
+          >
+            Login
+          </div>
+          <div
+            className={action === "Login" ? "toggle gray" : "toggle"}
+            onClick={() => {
+              setAction("Register");
+              setInputs({
+                username: "",
+                email: "",
+                password: "",
+              });
+            }}
+          >
+            Register
+          </div>
         </div>
 
-        {action === "Login" ? (
-          <div></div>
-        ) : (
+        <div className="inputs">
           <div className="input">
-            <img src={mail_icon} alt="" />
+            <img src={user_icon} alt="" />
             <input
-              name="email"
-              type="email"
-              placeholder="Email Id"
-              onChange={(e) => handleChange(e, "email")}
-              value={inputs.email}
+              name="username"
+              type="text"
+              placeholder="Username"
+              onChange={(e) => handleChange(e, "username")}
+              value={inputs.username}
             />
           </div>
-        )}
-        <div className="input">
-          <img src={password_icon} alt="" />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={(e) => handleChange(e, "password")}
-            value={inputs.password}
-          />
-        </div>
-      </div>
 
-      <div
-        className="submit"
-        onClick={action === "Register" ? handleRegister : handleLogin}
-      >
-        {action}
-      </div>
-
-      {action === "Register" ? (
-        <div></div>
-      ) : (
-        <div className="forgot-password-container">
-          <div className="forgot-password">
-            Forgot Password? <span>Click Here!</span>
+          {action === "Login" ? (
+            <div></div>
+          ) : (
+            <div className="input">
+              <img src={mail_icon} alt="" />
+              <input
+                name="email"
+                type="email"
+                placeholder="Email Id"
+                onChange={(e) => handleChange(e, "email")}
+                value={inputs.email}
+              />
+            </div>
+          )}
+          <div className="input">
+            <img src={password_icon} alt="" />
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              onChange={(e) => handleChange(e, "password")}
+              value={inputs.password}
+            />
           </div>
         </div>
-      )}
-    </div>
+
+        <div
+          className="submit"
+          onClick={action === "Register" ? handleRegister : handleLogin}
+        >
+          {action}
+        </div>
+
+        {action === "Register" ? (
+          <div></div>
+        ) : (
+          <div className="forgot-password-container">
+            <div className="forgot-password">
+              Forgot Password? <span>Click Here!</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 
